@@ -1,0 +1,47 @@
+<html>
+<head>
+    <style type="text/css">
+        body {
+            width: 600px;
+            height: 300px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+</head>
+<body>
+<form class="well form-search">
+    <div>
+        <label class="control-label" for="q">Search for: <span data-bind="text: q"></span></label>
+    </div>
+    <div>
+        <input name="q" id="q" type="search" results="5" data-bind="value: q" class="input-medium">
+        <button type="submit" class="btn">Search</button>
+    </div>
+
+</form>
+<script type="text/javascript">
+
+    /**
+     * callback from cross rider.
+     */
+    function crossriderMain ($) {
+        console.log('In callback');
+        console.log(ko);
+
+        // This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
+        function SearchModel() {
+            this.q = ko.observable("Bert");
+        }
+
+        // Activates knockout.js
+        ko.applyBindings(new SearchModel());
+    }
+    $('document').ready(function () {
+        crossriderMain($);
+    });
+</script>
+</body>
+</html>
