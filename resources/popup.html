@@ -5,26 +5,52 @@
             width: 600px;
             height: 300px;
         }
+        .social-item {
+            background: #EEEEEE;
+            border-radius: 5px;
+            padding: 10px;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+
+<!-- search form -->
 <form class="well form-search">
-    <div>
-        <label class="control-label" for="q">Search for: <span data-bind="text: q"></span></label>
-    </div>
     <div>
         <input name="q" id="q" type="search" results="5" data-bind="value: q" class="input-medium">
         <button type="submit" class="btn" data-bind="click: search">Search</button>
     </div>
 
 </form>
-<ul data-bind="foreach: socials, visible: socials().length > 0">
-    <li><span data-bind="text: D"></span><a data-bind="attr: {href: WL}">LINK</a></li>
+
+<!-- Basic data -->
+<section data-bind="with: basic" class="row text-center">
+    <header>
+        <h1 data-bind="text: title"></h1>
+    </header>
+    <img data-bind="attr: {src: image}" alt="" class="img-rounded"/>
+    <footer data-bind="text: description"></footer>
+</section>
+
+<!-- social link list -->
+<ul data-bind="foreach: socials, visible: socials().length > 0" class="info">
+    <li class="row ">
+        <div class="span12 social-item">
+            <span class="span1">
+                 <img data-bind="attr: {src: icon}" alt="" height="20px" width="20px">
+            </span>
+            <span data-bind="text: description" class="span8"></span>
+            <a data-bind="attr: {href: link}" class="icon-arrow-right span3"></a>
+        </div>
+    </li>
 </ul>
+
+<!-- main script -->
 <script type="text/javascript">
 
     /**
@@ -34,35 +60,70 @@
         console.log('In callback');
         console.log(ko);
 
+
+        // This is a simple *viewmodel*  for the social information
+        function Social (options) {
+
+            options = options || {};
+
+            this.description = options.D;
+
+            this.icon = 'http://util.toptag.com/' + options.U + '.png';
+
+            this.link = options.WL;
+
+        };
+
+
+        // This is a simple *viewmodel*  for the basic information
+        function Basic (options) {
+
+            var options = options || {};
+
+            this.image ='http://images.toptag.com/tags/' + options.Q + 'B2.jpg';
+            this.title = options.H;
+            this.description = options.N;
+        };
+
         // This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
         function SearchModel() {
 
+            // properties
             var self = this;
 
+            // basic information relating to the search result.
             this.basic = ko.observable();
 
+            // Property to hold the Array of social information relating to the search result.
             this.socials = ko.observableArray([]);
 
+            // The url to attack for search.
             this.searchUrl = "http://uk.toptag.com/EN/QUERY_ARGUMENT.json?callback=?";
 
+            // The search query
             this.q = ko.observable("007");
 
+            this.loading = ko.observable(false);
+
+            // operations
             this.search = function () {
+                self.loading = true;
                 var url = this.searchUrl.replace('QUERY_ARGUMENT', this.q());
                 $.get(url, function (data) {
-                    console.log('Got some data...');
-                    console.dir(data);
                     if (data) {
-                        data.social && self.socials(data.social);
-                        data.basic && self.basic(data.basic);
+                        data.social && self.socials($.map(data.social, function (social) { return new Social(social)}));
+                        data.basic && data.basic[0] && self.basic(new Basic(data.basic[0]));
+                        self.loading = false;
                     }
                 });
-            }
-        }
+            };
+        };
 
         // Activates knockout.js
         ko.applyBindings(new SearchModel());
     }
+
+    //
     $('document').ready(function () {
         crossriderMain($);
     });
