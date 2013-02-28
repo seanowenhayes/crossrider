@@ -18,10 +18,13 @@
     </div>
     <div>
         <input name="q" id="q" type="search" results="5" data-bind="value: q" class="input-medium">
-        <button type="submit" class="btn">Search</button>
+        <button type="submit" class="btn" data-bind="click: search">Search</button>
     </div>
 
 </form>
+<ul data-bind="foreach: socials, visible: socials().length > 0">
+    <li><span data-bind="text: D"></span><a data-bind="attr: {href: WL}">LINK</a></li>
+</ul>
 <script type="text/javascript">
 
     /**
@@ -33,7 +36,28 @@
 
         // This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
         function SearchModel() {
-            this.q = ko.observable("Bert");
+
+            var self = this;
+
+            this.basic = ko.observable();
+
+            this.socials = ko.observableArray([]);
+
+            this.searchUrl = "http://uk.toptag.com/EN/QUERY_ARGUMENT.json?callback=?";
+
+            this.q = ko.observable("007");
+
+            this.search = function () {
+                var url = this.searchUrl.replace('QUERY_ARGUMENT', this.q());
+                $.get(url, function (data) {
+                    console.log('Got some data...');
+                    console.dir(data);
+                    if (data) {
+                        data.social && self.socials(data.social);
+                        data.basic && self.basic(data.basic);
+                    }
+                });
+            }
         }
 
         // Activates knockout.js
